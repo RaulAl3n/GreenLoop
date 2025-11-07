@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
@@ -33,6 +32,10 @@ const Services = () => {
     birthdate: '',
     wallet: '',
   });
+  
+  // NOVO ESTADO: Para rastrear qual input está focado.
+  // Ele armazenará o ID do material que está sendo editado ou null.
+  const [focusedInput, setFocusedInput] = useState(null); 
 
   const materials = [
     { id: 'plastic', name: 'Plástico', icon: Trash2, unit: 'kg', rate: 0.0015, color: 'from-blue-500 to-blue-600' },
@@ -42,6 +45,11 @@ const Services = () => {
   ];
 
   const handleQuantityChange = (materialId, value) => {
+    // Permite que o campo fique vazio (string vazia) enquanto o usuário digita
+    if (value === '') {
+        setQuantities(prev => ({ ...prev, [materialId]: '' }));
+        return;
+    }
     const numValue = parseFloat(value) || 0;
     setQuantities(prev => ({ ...prev, [materialId]: numValue >= 0 ? numValue : 0 }));
   };
@@ -50,11 +58,23 @@ const Services = () => {
     setUserData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const calculateTotal = () => materials.reduce((total, material) => total + (quantities[material.id] * material.rate), 0);
+  const calculateTotal = () => materials.reduce((total, material) => {
+    // Garante que o cálculo use 0 se o valor no estado for string vazia
+    const quantity = quantities[material.id] === '' ? 0 : quantities[material.id];
+    return total + (quantity * material.rate);
+  }, 0);
 
   const handleOpenDialog = (e) => {
     e.preventDefault();
-    const total = calculateTotal();
+    // Garante que todos os estados de input vazios sejam convertidos para 0 antes do cálculo final
+    const finalQuantities = Object.keys(quantities).reduce((acc, key) => ({
+        ...acc,
+        [key]: quantities[key] === '' ? 0 : quantities[key]
+    }), {});
+    setQuantities(finalQuantities); // Atualiza o estado para garantir que '0' seja exibido se o campo estava vazio
+
+    const total = materials.reduce((total, material) => total + (finalQuantities[material.id] * material.rate), 0);
+    
     if (total === 0) {
       toast({
         title: "Atenção",
@@ -97,6 +117,23 @@ const Services = () => {
     setQuantities({ plastic: 0, glass: 0, paper: 0, metal: 0 });
     setUserData({ email: '', cpf: '', birthdate: '', wallet: '' });
   };
+  
+  // NOVOS HANDLERS de Foco/Desfoco
+  const handleFocus = (materialId) => {
+    setFocusedInput(materialId);
+    // Se o valor for 0, limpe-o para que o usuário possa digitar
+    if (quantities[materialId] === 0) {
+        setQuantities(prev => ({ ...prev, [materialId]: '' }));
+    }
+  };
+
+  const handleBlur = (materialId) => {
+    setFocusedInput(null);
+    // Se o campo estiver vazio ao desfocar, defina-o como 0
+    if (quantities[materialId] === '') {
+        setQuantities(prev => ({ ...prev, [materialId]: 0 }));
+    }
+  };
 
   return (
     <>
@@ -127,7 +164,19 @@ const Services = () => {
                       <span>{material.name} ({material.unit})</span>
                     </Label>
                     <div className="relative">
-                      <Input id={material.id} type="number" min="0" step="0.1" value={quantities[material.id]} onChange={(e) => handleQuantityChange(material.id, e.target.value)} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors text-lg" placeholder="0.0"/>
+                      {/* ALTERAÇÕES AQUI: Adição de onFocus e onBlur, e ajuste do value */}
+                      <Input 
+                        id={material.id} 
+                        type="number" 
+                        min="0" 
+                        step="0.1" 
+                        value={quantities[material.id]} 
+                        onChange={(e) => handleQuantityChange(material.id, e.target.value)} 
+                        onFocus={() => handleFocus(material.id)} // Adiciona handler de foco
+                        onBlur={() => handleBlur(material.id)}   // Adiciona handler de desfoco
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors text-lg" 
+                        placeholder="0.0"
+                      />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">{material.unit}</span>
                     </div>
                     <p className="text-sm text-gray-500">Taxa: {material.rate} BTC por {material.unit}</p>
@@ -142,7 +191,7 @@ const Services = () => {
 
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button type="button" onClick={(e) => { e.preventDefault(); handleOpenDialog(e); }} size="lg" className="w-full gradient-green text-white hover:opacity-90 transition-opacity text-lg">Calcular Ganhos</Button>
+                      <Button type="button" onClick={(e) => { e.preventDefault(); handleOpenDialog(e); }} size="lg" className="w-full gradient-green text-white hover:opacity-90 transition-opacity text-lg">Receber pagamento</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
@@ -162,7 +211,7 @@ const Services = () => {
                           <Label htmlFor="birthdate" className="flex items-center gap-2"><Calendar className="w-4 h-4"/>Data de Nascimento</Label>
                           <Input id="birthdate" name="birthdate" type="date" value={userData.birthdate} onChange={handleUserChange} required />
                         </div>
-                         <div className="space-y-2">
+                          <div className="space-y-2">
                           <Label htmlFor="wallet" className="flex items-center gap-2"><Wallet className="w-4 h-4"/>Carteira BTC</Label>
                           <Input id="wallet" name="wallet" type="text" placeholder="Endereço da sua carteira Bitcoin" value={userData.wallet} onChange={handleUserChange} required />
                         </div>
