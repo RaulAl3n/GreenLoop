@@ -86,37 +86,55 @@ const Services = () => {
     setIsDialogOpen(true);
   };
   
-  const handleFinalSubmit = () => {
-    if (!userData.email || !userData.cpf || !userData.birthdate || !userData.wallet) {
-      toast({
-        title: "Campos Obrigatórios",
-        description: "Por favor, preencha todos os seus dados.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const total = calculateTotal();
-    const submission = {
-      user: userData,
-      materials: quantities,
-      totalCrypto: total,
-      timestamp: new Date().toISOString(),
-    };
-
-    const savedSubmissions = JSON.parse(localStorage.getItem('greenloop_submissions') || '[]');
-    savedSubmissions.push(submission);
-    localStorage.setItem('greenloop_submissions', JSON.stringify(savedSubmissions));
-
+  const handleFinalSubmit = async () => {
+  if (!userData.email || !userData.cpf || !userData.birthdate || !userData.wallet) {
     toast({
-      title: "Cálculo Confirmado! 🎉",
-      description: `Você receberá aproximadamente ${total.toFixed(6)} BTC pelos seus recicláveis!`,
+      title: "Campos Obrigatórios",
+      description: "Por favor, preencha todos os seus dados.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  const total = calculateTotal();
+  const submission = {
+    user: userData,
+    materials: quantities,
+    totalCrypto: total,
+    timestamp: new Date().toISOString(),
+  };
+
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwMoJpvh5OtjmWcEgy_zi_XTpcKsOgNsVIy_R1XdA9EQ0-8skivMVUtqMZHf8vFXWSkKw/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(submission),
     });
 
-    setIsDialogOpen(false);
-    setQuantities({ plastic: 0, glass: 0, paper: 0, metal: 0 });
-    setUserData({ email: '', cpf: '', birthdate: '', wallet: '' });
-  };
+    const result = await response.json();
+
+    if (result.result === "success") {
+      toast({
+        title: "Cálculo Confirmado! 🎉",
+        description: `Seus dados foram enviados com sucesso. Você receberá aproximadamente ${total.toFixed(6)} BTC!`,
+      });
+
+      setIsDialogOpen(false);
+      setQuantities({ plastic: 0, glass: 0, paper: 0, metal: 0 });
+      setUserData({ email: '', cpf: '', birthdate: '', wallet: '' });
+    } else {
+      throw new Error("Erro ao enviar os dados.");
+    }
+  } catch (error) {
+    toast({
+      title: "Erro",
+      description: "Não foi possível enviar os dados. Tente novamente.",
+      variant: "destructive",
+    });
+    console.error(error);
+  }
+};
+
   
   // NOVOS HANDLERS de Foco/Desfoco
   const handleFocus = (materialId) => {
