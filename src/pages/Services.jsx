@@ -212,8 +212,8 @@ const Services = () => {
                           <Input id="birthdate" name="birthdate" type="date" value={userData.birthdate} onChange={handleUserChange} required />
                         </div>
                           <div className="space-y-2">
-                          <Label htmlFor="wallet" className="flex items-center gap-2"><Wallet className="w-4 h-4"/>Carteira BTC</Label>
-                          <Input id="wallet" name="wallet" type="text" placeholder="Endereço da sua carteira Bitcoin" value={userData.wallet} onChange={handleUserChange} required />
+                          <Label htmlFor="wallet" className="flex items-center gap-2"><Wallet className="w-4 h-4"/>Wallet</Label>
+                          <Input id="wallet" name="wallet" type="text" placeholder="Endereço da sua Wallet" value={userData.wallet} onChange={handleUserChange} required />
                         </div>
                       </div>
                       <DialogFooter>
