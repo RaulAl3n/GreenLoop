@@ -41,7 +41,11 @@ AggregatorV3Interface(0xa81FE04086865e63E12dD3776978E49DEEa2ea4e); // WBTC Proof
 ## How to run the project
 
 1. Copy and paste this code on the project directory:
-```npm i```
+```
+npm i
+```
 
-2. Then paste this one:
-```npm run dev```
+3. Then paste this one:
+```
+npm run dev
+```
