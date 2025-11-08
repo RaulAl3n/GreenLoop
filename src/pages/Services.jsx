@@ -6,7 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther } from 'viem';
+import { uploadToPinata } from '@/lib/pinata';
+import glPETAbi from '@/abi/glPET-abi.json';
 import {
   Dialog,
   DialogContent,
@@ -17,11 +20,15 @@ import {
 } from "@/components/ui/dialog";
 import TokenChart from '@/components/TokenChart';
 
-const OWNER_ADDRESS = '0x8CC1e88F8Ee2e17245b5d247c1e47667d8C69F7A';
+const CONTRACT_ADDRESS = '0x35FbA5dE07ed5479c8a151b78013b8Fea0FE67B4';
 
 const Services = () => {
   const { toast } = useToast();
   const { address, isConnected } = useAccount();
+  const { writeContract, data: hash, isPending: isWriting } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  });
   const [petData, setPetData] = useState({
     quantidade: '',
     unidade: 'kg',
@@ -39,6 +46,20 @@ const Services = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (isSuccess) {
+      const total = calculateTotal();
+      
+      toast({
+        title: "Mint realizado com sucesso! 🎉",
+        description: `Reciclador recebeu ${total.toFixed(4)} glPET!`,
+      });
+      setIsDialogOpen(false);
+      setPetData({ quantidade: '', unidade: 'kg', valorReais: 0, valorUnidade: 'reais', recicladorAddress: '' });
+      setLoading(false);
+    }
+  }, [isSuccess]);
 
   const handlePetChange = (field, value) => {
     setPetData(prev => ({ ...prev, [field]: value }));
@@ -214,47 +235,49 @@ const Services = () => {
 
     setLoading(true);
     const total = calculateTotal();
-    const submission = {
-      petData: {
-        quantidade: petData.quantidade,
-        unidade: petData.unidade,
-        quantidadeKg: convertToKg(petData.quantidade, petData.unidade),
-        valorReais: petData.valorReais,
-        valorCentavos: Math.round(petData.valorReais * 100),
-        timestamp: currentTimestamp,
-      },
-      recicladorAddress: petData.recicladorAddress,
-      adminAddress: address,
-      totalTokens: total,
-    };
-
+    
     try {
-      const response = await fetch("http://127.0.0.1:5000/receber_dados", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submission),
+      const submission = {
+        petData: {
+          quantidade: petData.quantidade,
+          unidade: petData.unidade,
+          quantidadeKg: convertToKg(petData.quantidade, petData.unidade),
+          valorReais: petData.valorReais,
+          valorCentavos: Math.round(petData.valorReais * 100),
+          timestamp: currentTimestamp,
+        },
+        recicladorAddress: petData.recicladorAddress,
+        adminAddress: address,
+        totalTokens: total,
+      };
+
+      toast({
+        title: "Fazendo upload no IPFS...",
+        description: "Enviando dados para o Pinata...",
       });
 
-      const result = await response.json();
+      const cid = await uploadToPinata(submission);
 
-      if (result.result === "success") {
-        toast({
-          title: "Valores Enviados! 🎉",
-          description: `Dados enviados com sucesso. Reciclador receberá ${total.toFixed(6)} glPET!`,
-        });
+      toast({
+        title: "Upload concluído!",
+        description: `CID: ${cid}. Iniciando mint...`,
+      });
 
-        setIsDialogOpen(false);
-        setPetData({ quantidade: '', unidade: 'kg', valorReais: 0, valorUnidade: 'reais', recicladorAddress: '' });
-      } else {
-        throw new Error("Erro ao enviar os dados.");
-      }
+      const amountInWei = parseEther(total.toString());
+
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: glPETAbi,
+        functionName: 'mint',
+        args: [petData.recicladorAddress, amountInWei],
+      });
+
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Não foi possível enviar os dados. Tente novamente.",
+        description: error.message || "Não foi possível processar a transação. Tente novamente.",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -470,10 +493,10 @@ const Services = () => {
                       <DialogFooter>
                         <Button 
                           onClick={handleFinalSubmit} 
-                          disabled={loading || !isConnected}
+                          disabled={loading || isWriting || isConfirming || !isConnected}
                           className="w-full gradient-blue text-white hover:opacity-90"
                         >
-                          {loading ? 'Enviando...' : 'Confirmar envio'}
+                          {isWriting ? 'Assinando transação...' : isConfirming ? 'Confirmando...' : loading ? 'Processando...' : 'Confirmar envio'}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
