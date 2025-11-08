@@ -1,10 +1,39 @@
+/**
+ * @component About
+ * @description
+ * The main "About Us" page for GreenLoop – a blockchain-powered recycling rewards platform.
+ * 
+ * Key Features:
+ * - SEO-optimized with React Helmet
+ * - Animated entrance effects using Framer Motion
+ * - Responsive grid layout for values and commitment stats
+ * - Visual storytelling with team image and gradient backgrounds
+ * - Showcases mission, history, values, and commitment
+ * 
+ * Tech Stack: React, Tailwind CSS, Framer Motion, Lucide Icons
+ */
+
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Target, Users, Lightbulb, Heart } from 'lucide-react';
 
+/**
+ * Renders the "About" page of the GreenLoop platform.
+ *
+ * This component displays the company's mission, history, core values,
+ * and commitment to sustainability and blockchain technology. It uses
+ * Framer Motion for smooth animations and Lucide icons for visual emphasis.
+ * The page is SEO-optimized via React Helmet.
+ *
+ * @returns {JSX.Element} The fully rendered About page with animated sections.
+ */
 const About = () => {
+  /**
+   * Array of core values displayed in a responsive grid.
+   * Each value includes an icon, title, and description.
+   */
   const values = [
     {
       icon: Target,
@@ -30,11 +59,13 @@ const About = () => {
 
   return (
     <>
+      {/* SEO Optimization */}
       <Helmet>
         <title>Sobre Nós - GreenLoop</title>
         <meta name="description" content="Conheça a GreenLoop e nossa missão de transformar reciclagem em recompensas cripto. Sustentabilidade encontra blockchain." />
       </Helmet>
 
+      {/* Hero Section with Introduction */}
       <section className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -51,6 +82,7 @@ const About = () => {
             </p>
           </motion.div>
 
+          {/* Our Story Section with Image and Text */}
           <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -58,7 +90,11 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <img alt="Equipe GreenLoop trabalhando em sustentabilidade" className="rounded-2xl shadow-2xl w-full" src="https://images.unsplash.com/photo-1634715022648-13d43a4e9fe8" />
+              <img 
+                alt="Equipe GreenLoop trabalhando em sustentabilidade" 
+                className="rounded-2xl shadow-2xl w-full" 
+                src="https://images.unsplash.com/photo-1634715022648-13d43a4e9fe8" 
+              />
             </motion.div>
 
             <motion.div
@@ -82,6 +118,7 @@ const About = () => {
             </motion.div>
           </div>
 
+          {/* Core Values Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <motion.div
@@ -107,6 +144,7 @@ const About = () => {
         </div>
       </section>
 
+      {/* Commitment Section */}
       <section className="py-20 gradient-green text-white">
         <div className="container mx-auto px-4">
           <motion.div

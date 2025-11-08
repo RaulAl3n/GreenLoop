@@ -1,3 +1,17 @@
+/**
+ * WalletMenu Component
+ * 
+ * A dropdown menu component for managing wallet-related actions.
+ * It allows users to copy their wallet address, view it on the BaseScan explorer,
+ * or disconnect their wallet using Wagmi.
+ * 
+ * @component
+ * @param {Object} props - The component props.
+ * @param {string} props.address - The connected wallet address.
+ * @param {React.ReactNode} props.children - The trigger element for the dropdown (usually a button).
+ * @returns {JSX.Element} The rendered wallet management dropdown menu.
+ */
+
 import React from 'react';
 import { Copy, ExternalLink, LogOut } from 'lucide-react';
 import {
@@ -17,19 +31,23 @@ const WalletMenu = ({ address, children }) => {
   const { disconnect } = useDisconnect();
 
   /**
-   * Copia o endereço da wallet para a área de transferência
+   * Copies the wallet address to the user's clipboard.
+   * Displays a success toast on success or an error toast if copying fails.
+   * 
+   * @async
    */
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(address);
-      toast.success('Endereço copiado!');
+      toast.success('Address copied!');
     } catch (error) {
-      toast.error('Erro ao copiar endereço');
+      toast.error('Failed to copy address');
     }
   };
 
   /**
-   * Abre o endereço no Basescan em nova aba
+   * Opens the BaseScan explorer in a new browser tab
+   * showing the user's wallet address.
    */
   const handleViewOnExplorer = () => {
     window.open(`https://basescan.org/address/${address}`, '_blank');
@@ -43,11 +61,11 @@ const WalletMenu = ({ address, children }) => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={handleCopy} className="cursor-pointer">
           <Copy className="w-4 h-4 mr-2" />
-          Copiar endereço
+          Copy address
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleViewOnExplorer} className="cursor-pointer">
           <ExternalLink className="w-4 h-4 mr-2" />
-          Ver no Basescan
+          View on BaseScan
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -55,7 +73,7 @@ const WalletMenu = ({ address, children }) => {
           className="text-destructive cursor-pointer focus:text-destructive"
         >
           <LogOut className="w-4 h-4 mr-2" />
-          Desconectar
+          Disconnect
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -63,4 +81,3 @@ const WalletMenu = ({ address, children }) => {
 };
 
 export default WalletMenu;
-
