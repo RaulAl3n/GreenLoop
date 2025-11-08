@@ -1,3 +1,17 @@
+/**
+ * @component Contact
+ * @description
+ * Interactive contact page with:
+ * - Real-time form validation
+ * - localStorage persistence (demo-ready)
+ * - Toast notifications (success/error)
+ * - Animated layout with Framer Motion
+ * - Responsive 2-column design
+ * - Contact info, hours, and map
+ *
+ * Perfect for live demos — users can submit messages and see them saved instantly!
+ */
+
 
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
@@ -7,8 +21,27 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 
+/**
+ * Renders the "Contact Us" page of the GreenLoop platform.
+ *
+ * This component provides a fully functional contact form with client-side
+ * validation and localStorage persistence for demo purposes. It displays
+ * contact information, business hours, and a location image. Animations are
+ * powered by Framer Motion, and toast notifications give user feedback.
+ *
+ * @returns {JSX.Element} The interactive and animated Contact page.
+ */
 const Contact = () => {
   const { toast } = useToast();
+
+  /**
+   * Local state for the contact form fields.
+   * @type {Object}
+   * @property {string} name - User's full name
+   * @property {string} email - User's email address
+   * @property {string} subject - Optional message subject
+   * @property {string} message - Main message content
+   */
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,6 +49,11 @@ const Contact = () => {
     message: '',
   });
 
+  /**
+   * Handles input changes and updates form state immutably.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Input change event
+   */
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -23,32 +61,43 @@ const Contact = () => {
     }));
   };
 
+  /**
+   * Handles form submission with validation and localStorage storage.
+   * Shows success/error toasts and resets form on success.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - Form submit event
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Client-side validation
     if (!formData.name || !formData.email || !formData.message) {
       toast({
-        title: "Campos Obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
+        title: "Required Fields",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;
     }
 
+    // Prepare submission with timestamp
     const submission = {
       ...formData,
       timestamp: new Date().toISOString(),
     };
 
+    // Persist to localStorage (for demo/hackathon purposes)
     const savedContacts = JSON.parse(localStorage.getItem('greenloop_contacts') || '[]');
     savedContacts.push(submission);
     localStorage.setItem('greenloop_contacts', JSON.stringify(savedContacts));
 
+    // Success feedback
     toast({
-      title: "Mensagem Enviada! 🎉",
-      description: "Obrigado pelo contato! Responderemos em breve.",
+      title: "Message Sent!",
+      description: "Thank you for reaching out! We'll get back to you soon.",
     });
 
+    // Reset form
     setFormData({
       name: '',
       email: '',
@@ -57,6 +106,10 @@ const Contact = () => {
     });
   };
 
+  /**
+   * Array of contact information items with icons and optional links.
+   * @type {Array<{icon: React.Component, title: string, content: string, link: string|null}>}
+   */
   const contactInfo = [
     {
       icon: Mail,
@@ -66,27 +119,30 @@ const Contact = () => {
     },
     {
       icon: Phone,
-      title: 'Telefone',
+      title: 'Phone',
       content: '+55 (11) 9999-9999',
       link: 'tel:+5511999999999',
     },
     {
       icon: MapPin,
-      title: 'Endereço',
-      content: 'São Paulo, Brasil',
+      title: 'Address',
+      content: 'São Paulo, Brazil',
       link: null,
     },
   ];
 
   return (
     <>
+      {/* SEO Optimization */}
       <Helmet>
-        <title>Contato - Fale Conosco | GreenLoop</title>
-        <meta name="description" content="Entre em contato com a GreenLoop. Estamos prontos para responder suas dúvidas sobre reciclagem e criptomoedas." />
+        <title>Contact - Get in Touch | GreenLoop</title>
+        <meta name="description" content="Contact GreenLoop. We're here to answer your questions about recycling and crypto rewards." />
       </Helmet>
 
+      {/* Main Contact Section */}
       <section className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
         <div className="container mx-auto px-4">
+          {/* Hero Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,14 +150,15 @@ const Contact = () => {
             className="text-center mb-16"
           >
             <h1 className="text-5xl font-bold text-[#538536] mb-6">
-              Entre em Contato
+              Get in Touch
             </h1>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Tem dúvidas ou sugestões? Estamos aqui para ajudar!
+              Have questions or suggestions? We’re here to help!
             </p>
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-12">
+            {/* Contact Form */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -109,13 +166,14 @@ const Contact = () => {
             >
               <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
                 <h2 className="text-3xl font-bold text-[#538536] mb-6">
-                  Envie uma Mensagem
+                  Send us a Message
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Name Field */}
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-gray-700 font-medium">
-                      Nome *
+                      Name *
                     </Label>
                     <input
                       id="name"
@@ -124,11 +182,12 @@ const Contact = () => {
                       value={formData.name}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors"
-                      placeholder="Seu nome completo"
+                      placeholder="Your full name"
                       required
                     />
                   </div>
 
+                  {/* Email Field */}
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-gray-700 font-medium">
                       Email *
@@ -140,14 +199,15 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors"
-                      placeholder="seu@email.com"
+                      placeholder="you@email.com"
                       required
                     />
                   </div>
 
+                  {/* Subject Field */}
                   <div className="space-y-2">
                     <Label htmlFor="subject" className="text-gray-700 font-medium">
-                      Assunto
+                      Subject
                     </Label>
                     <input
                       id="subject"
@@ -156,13 +216,14 @@ const Contact = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors"
-                      placeholder="Sobre o que você quer falar?"
+                      placeholder="What would you like to talk about?"
                     />
                   </div>
 
+                  {/* Message Field */}
                   <div className="space-y-2">
                     <Label htmlFor="message" className="text-gray-700 font-medium">
-                      Mensagem *
+                      Message *
                     </Label>
                     <textarea
                       id="message"
@@ -171,32 +232,35 @@ const Contact = () => {
                       onChange={handleChange}
                       rows={6}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors resize-none"
-                      placeholder="Escreva sua mensagem aqui..."
+                      placeholder="Write your message here..."
                       required
                     />
                   </div>
 
+                  {/* Submit Button */}
                   <Button
                     type="submit"
                     size="lg"
                     className="w-full gradient-green text-white hover:opacity-90 transition-opacity"
                   >
-                    Enviar Mensagem
+                    Send Message
                     <Send className="ml-2 w-5 h-5" />
                   </Button>
                 </form>
               </div>
             </motion.div>
 
+            {/* Contact Info & Map */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="space-y-6"
             >
+              {/* Contact Details */}
               <div className="bg-white rounded-2xl shadow-xl p-8">
                 <h3 className="text-2xl font-bold text-[#538536] mb-6">
-                  Informações de Contato
+                  Contact Information
                 </h3>
                 <div className="space-y-6">
                   {contactInfo.map((info, index) => (
@@ -222,28 +286,34 @@ const Contact = () => {
                 </div>
               </div>
 
+              {/* Business Hours */}
               <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8">
                 <h3 className="text-2xl font-bold text-[#538536] mb-4">
-                  Horário de Atendimento
+                  Business Hours
                 </h3>
                 <div className="space-y-3 text-gray-700">
                   <div className="flex justify-between">
-                    <span className="font-medium">Segunda - Sexta:</span>
+                    <span className="font-medium">Monday - Friday:</span>
                     <span>9:00 - 18:00</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Sábado:</span>
+                    <span className="font-medium">Saturday:</span>
                     <span>9:00 - 13:00</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Domingo:</span>
-                    <span>Fechado</span>
+                    <span className="font-medium">Sunday:</span>
+                    <span>Closed</span>
                   </div>
                 </div>
               </div>
 
+              {/* Location Image */}
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <img alt="Mapa de localização GreenLoop em São Paulo" className="w-full h-64 object-cover" src="https://images.unsplash.com/photo-1693471019113-d2837cc9a2cc" />
+                <img 
+                  alt="GreenLoop location map in São Paulo" 
+                  className="w-full h-64 object-cover" 
+                  src="https://images.unsplash.com/photo-1693471019113-d2837cc9a2cc" 
+                />
               </div>
             </motion.div>
           </div>
