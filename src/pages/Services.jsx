@@ -26,6 +26,7 @@ const Services = () => {
     metal: 0,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ novo estado de carregamento
   const [userData, setUserData] = useState({
     email: '',
     cpf: '',
@@ -96,20 +97,22 @@ const Services = () => {
     return;
   }
 
-  const total = calculateTotal();
-  const submission = {
-    user: userData,
-    materials: quantities,
-    totalCrypto: total,
-    timestamp: new Date().toISOString(),
+  setLoading(true); // ✅ ativa o loading
+    const total = calculateTotal();
+    const submission = {
+      user: userData,
+      materials: quantities,
+      totalCrypto: total,
+      timestamp: new Date().toISOString(),
   };
 
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwMoJpvh5OtjmWcEgy_zi_XTpcKsOgNsVIy_R1XdA9EQ0-8skivMVUtqMZHf8vFXWSkKw/exec", {
+    const response = await fetch("http://127.0.0.1:5000/receber_dados", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(submission),
     });
+
 
     const result = await response.json();
 
@@ -132,6 +135,8 @@ const Services = () => {
       variant: "destructive",
     });
     console.error(error);
+  } finally {
+      setLoading(false); // ✅ desativa o loading
   }
 };
 
@@ -252,7 +257,9 @@ const Services = () => {
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button onClick={handleFinalSubmit} className="w-full gradient-blue text-white hover:opacity-90">Confirmar e Calcular</Button>
+                        <Button onClick={handleFinalSubmit} 
+                        disabled={loading} // ✅ desativa enquanto envia
+                        className="w-full gradient-blue text-white hover:opacity-90">Confirmar pagamento</Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
