@@ -12,7 +12,7 @@ import { sdk } from "@farcaster/miniapp-sdk";
 const App = () => {
   useEffect(() => {
     try {
-      sdks.actions.ready();
+      sdk.actions.ready();
     } catch (error) {
       console.error('Erro ao inicializar o Farcaster:', error);
     }
