@@ -50,7 +50,7 @@ const WalletMenu = ({ address, children }) => {
    * showing the user's wallet address.
    */
   const handleViewOnExplorer = () => {
-    window.open(`https://basescan.org/address/${address}`, '_blank');
+    window.open(`https://sepolia.basescan.org/address/${address}`, '_blank');
   };
 
   return (

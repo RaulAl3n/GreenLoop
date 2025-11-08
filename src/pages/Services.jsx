@@ -16,15 +16,14 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Calculator, Trash2, Wine, DollarSign, Scale, Wallet } from 'lucide-react';
+import { Calculator, Trash2, Wine, DollarSign, Scale, Wallet, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount } from 'wagmi';
 import { uploadToPinata } from '@/lib/pinata';
-import glPETAbi from '@/abi/glPET-abi.json';
+import { mintERC20, mintERC721 } from '@/lib/api';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +34,6 @@ import {
 } from "@/components/ui/dialog";
 import TokenChart from '@/components/TokenChart';
 
-const CONTRACT_ADDRESS = '0x35FbA5dE07ed5479c8a151b78013b8Fea0FE67B4';
 
 /**
  * Renders the "Calculate Earnings" (Services) page – the core feature of GreenLoop.
@@ -55,10 +53,6 @@ const CONTRACT_ADDRESS = '0x35FbA5dE07ed5479c8a151b78013b8Fea0FE67B4';
 const Services = () => {
   const { toast } = useToast();
   const { address, isConnected } = useAccount();
-  const { writeContract, data: hash, isPending: isWriting, error: writeError, reset: resetWrite } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({
-    hash,
-  });
   const [petData, setPetData] = useState({
     quantidade: '',
     unidade: 'kg',
@@ -69,6 +63,8 @@ const Services = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentTimestamp, setCurrentTimestamp] = useState(Date.now());
+  const [txHashes, setTxHashes] = useState({ erc20: null, erc721: null });
+  const [isSuccess, setIsSuccess] = useState(false);
 
   /**
    * Keeps track of current date/time to display on the form.
@@ -81,49 +77,7 @@ const Services = () => {
     return () => clearInterval(interval);
   }, []);
 
-  /**
-   * Handles success feedback after a successful mint transaction.
-   */
-  useEffect(() => {
-    if (isSuccess) {
-      const total = calculateTotal();
-      
-      toast({
-        title: "Mint realizado com sucesso! 🎉",
-        description: `Reciclador recebeu ${total.toFixed(4)} glPET!`,
-      });
-      setIsDialogOpen(false);
-      setPetData({ quantidade: '', unidade: 'kg', valorReais: 0, valorUnidade: 'reais', recicladorAddress: '' });
-      setLoading(false);
-      resetWrite();
-    }
-  }, [isSuccess, resetWrite]);
 
-  /**
-   * Handles transaction errors (either rejected by user or failed on-chain).
-   */
-  useEffect(() => {
-    if (writeError || receiptError) {
-      const errorMessage = writeError?.message || receiptError?.message || 'Transação cancelada ou falhou';
-      
-      if (errorMessage.includes('rejected') || errorMessage.includes('denied') || errorMessage.includes('User rejected') || errorMessage.includes('user rejected')) {
-        toast({
-          title: "Transação cancelada",
-          description: "A transação foi cancelada pelo usuário.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Erro na transação",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
-      
-      setLoading(false);
-      resetWrite();
-    }
-  }, [writeError, receiptError, resetWrite]);
 
   /**
    * Updates a specific field in the PET data form.
@@ -377,13 +331,40 @@ const Services = () => {
         description: `CID: ${cid}. Iniciando mint...`,
       });
 
-      const amountInWei = parseEther(total.toString());
+      // Mint ERC20 com a quantidade em valor reais
+      toast({
+        title: "Mintando tokens ERC20...",
+        description: `Enviando ${petData.valorReais} glPET para o reciclador...`,
+      });
 
-      writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: glPETAbi,
-        functionName: 'mint',
-        args: [petData.recicladorAddress, amountInWei],
+      const erc20Result = await mintERC20(petData.recicladorAddress, petData.valorReais.toString());
+      
+      toast({
+        title: "ERC20 mintado com sucesso!",
+        description: `Transaction: ${erc20Result.transactionHash}`,
+      });
+
+      // Mint ERC721 com o CID do IPFS
+      toast({
+        title: "Mintando NFT ERC721...",
+        description: `Criando certificado com CID: ${cid}...`,
+      });
+
+      const ipfsUri = `ipfs://${cid}`;
+      const erc721Result = await mintERC721(petData.recicladorAddress, ipfsUri);
+
+      // Armazenar os tx hashes e mostrar no modal
+      setTxHashes({
+        erc20: erc20Result.transactionHash,
+        erc721: erc721Result.transactionHash,
+        tokenId: erc721Result.tokenId
+      });
+      setIsSuccess(true);
+      setLoading(false);
+
+      toast({
+        title: "Mint realizado com sucesso! 🎉",
+        description: `Reciclador recebeu ${petData.valorReais} glPET e NFT #${erc721Result.tokenId}!`,
       });
 
     } catch (error) {
@@ -574,44 +555,114 @@ const Services = () => {
                     Enviar valores
                   </Button>
 
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                    setIsDialogOpen(open);
+                    if (!open) {
+                      // Resetar estados quando fechar o modal
+                      setIsSuccess(false);
+                      setTxHashes({ erc20: null, erc721: null });
+                      if (isSuccess) {
+                        setPetData({ quantidade: '', unidade: 'kg', valorReais: 0, valorUnidade: 'reais', recicladorAddress: '' });
+                      }
+                    }
+                  }}>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
-                        <DialogTitle className="text-2xl text-[#538536]">Confirmar Envio</DialogTitle>
-                        <DialogDescription>Revise os dados antes de enviar.</DialogDescription>
+                        <DialogTitle className="text-2xl text-[#538536]">
+                          {isSuccess ? 'Transação Confirmada! 🎉' : 'Confirmar Envio'}
+                        </DialogTitle>
+                        <DialogDescription>
+                          {isSuccess ? 'Suas transações foram confirmadas na blockchain.' : 'Revise os dados antes de enviar.'}
+                        </DialogDescription>
                       </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Quantidade:</p>
-                          <p className="text-lg">{petData.quantidade} {petData.unidade} ({convertToKg(petData.quantidade, petData.unidade).toFixed(2)} kg)</p>
+                      
+                      {isSuccess ? (
+                        <div className="grid gap-4 py-4">
+                          <div className="flex items-center gap-2 text-green-600 mb-4">
+                            <CheckCircle2 className="w-5 h-5" />
+                            <p className="font-semibold">Mint realizado com sucesso!</p>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-gray-700">Transação ERC20 (glPET):</p>
+                              <a 
+                                href={`https://sepolia.basescan.org/tx/${txHashes.erc20}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline text-sm font-mono break-all"
+                              >
+                                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                                {txHashes.erc20}
+                              </a>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-gray-700">Transação ERC721 (NFT):</p>
+                              <a 
+                                href={`https://sepolia.basescan.org/tx/${txHashes.erc721}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline text-sm font-mono break-all"
+                              >
+                                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                                {txHashes.erc721}
+                              </a>
+                              {txHashes.tokenId && (
+                                <p className="text-xs text-gray-500 mt-1">Token ID: #{txHashes.tokenId}</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Valor:</p>
-                          <p className="text-lg">
-                            {petData.valorReais.toFixed(2)} {petData.valorUnidade === 'reais' ? 'R$' : 'R$ (centavos)'}
-                          </p>
+                      ) : (
+                        <div className="grid gap-4 py-4">
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">Quantidade:</p>
+                            <p className="text-lg">{petData.quantidade} {petData.unidade} ({convertToKg(petData.quantidade, petData.unidade).toFixed(2)} kg)</p>
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">Valor:</p>
+                            <p className="text-lg">
+                              {petData.valorReais.toFixed(2)} {petData.valorUnidade === 'reais' ? 'R$' : 'R$ (centavos)'}
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">Data:</p>
+                            <p className="text-lg">{formatDate(currentTimestamp)}</p>
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">Endereço do Reciclador:</p>
+                            <p className="text-lg font-mono text-xs break-all">{petData.recicladorAddress}</p>
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">Tokens a receber:</p>
+                            <p className="text-lg font-bold text-[#538536]">{calculateTotal().toFixed(4)} glPET</p>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Data:</p>
-                          <p className="text-lg">{formatDate(currentTimestamp)}</p>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Endereço do Reciclador:</p>
-                          <p className="text-lg font-mono text-xs break-all">{petData.recicladorAddress}</p>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Tokens a receber:</p>
-                          <p className="text-lg font-bold text-[#538536]">{calculateTotal().toFixed(4)} glPET</p>
-                        </div>
-                      </div>
+                      )}
+                      
                       <DialogFooter>
-                        <Button 
-                          onClick={handleFinalSubmit} 
-                          disabled={loading || isWriting || isConfirming || !isConnected}
-                          className="w-full gradient-blue text-white hover:opacity-90"
-                        >
-                          {isWriting ? 'Assinando transação...' : isConfirming ? 'Confirmando...' : loading ? 'Processando...' : 'Confirmar envio'}
-                        </Button>
+                        {isSuccess ? (
+                          <Button 
+                            onClick={() => {
+                              setIsDialogOpen(false);
+                              setIsSuccess(false);
+                              setTxHashes({ erc20: null, erc721: null });
+                              setPetData({ quantidade: '', unidade: 'kg', valorReais: 0, valorUnidade: 'reais', recicladorAddress: '' });
+                            }}
+                            className="w-full gradient-green text-white hover:opacity-90"
+                          >
+                            Fechar
+                          </Button>
+                        ) : (
+                          <Button 
+                            onClick={handleFinalSubmit} 
+                            disabled={loading || !isConnected}
+                            className="w-full gradient-blue text-white hover:opacity-90"
+                          >
+                            {loading ? 'Processando...' : 'Confirmar envio'}
+                          </Button>
+                        )}
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>

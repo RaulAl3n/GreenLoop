@@ -3,9 +3,9 @@ import { base, baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 
 /**
- * Rede principal da aplicação (Base Mainnet)
+ * Rede principal da aplicação (Base Sepolia)
  */
-export const targetChain = base;
+export const targetChain = baseSepolia;
 
 /**
  * Configuração do Wagmi para conexão com wallets e interação com blockchain
