@@ -6,6 +6,10 @@ import { wagmiConfig, targetChain } from '@/lib/wagmi';
 
 const queryClient = new QueryClient();
 
+/**
+ * Provider que configura Wagmi, React Query e OnchainKit para toda a aplicação
+ * Habilita criação automática de conta Base ao conectar wallet
+ */
 const WagmiProvider = ({ children }) => {
   return (
     <WagmiProviderBase config={wagmiConfig}>

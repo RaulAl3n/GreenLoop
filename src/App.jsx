@@ -14,7 +14,7 @@ const App = () => {
     try {
       sdk.actions.ready();
     } catch (error) {
-      console.error('Erro ao inicializar o Farcaster:', error);
+      // Erro silencioso - Farcaster SDK opcional
     }
   }, []);
 

@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import WalletMenu from './WalletMenu';
 
+/**
+ * Formata endereço Ethereum para exibição (primeiros 6 e últimos 4 caracteres)
+ */
 const truncateAddress = (addr) => {
   if (!addr) return '';
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -23,6 +26,9 @@ const WalletConnectButton = ({ onConnect }) => {
     }
   }, [isConnected, onConnect]);
 
+  /**
+   * Troca a rede para Base quando o usuário está em outra rede
+   */
   const handleSwitch = async () => {
     try {
       await switchChainAsync({ chainId: targetChain.id });

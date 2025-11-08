@@ -10,9 +10,15 @@ import {
 import { useDisconnect } from 'wagmi';
 import { toast } from 'sonner';
 
+/**
+ * Menu dropdown com opções da wallet conectada (copiar, ver no explorer, desconectar)
+ */
 const WalletMenu = ({ address, children }) => {
   const { disconnect } = useDisconnect();
 
+  /**
+   * Copia o endereço da wallet para a área de transferência
+   */
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(address);
@@ -22,6 +28,9 @@ const WalletMenu = ({ address, children }) => {
     }
   };
 
+  /**
+   * Abre o endereço no Basescan em nova aba
+   */
   const handleViewOnExplorer = () => {
     window.open(`https://basescan.org/address/${address}`, '_blank');
   };

@@ -40,6 +40,9 @@ const Services = () => {
   const [loading, setLoading] = useState(false);
   const [currentTimestamp, setCurrentTimestamp] = useState(Date.now());
 
+  /**
+   * Atualiza timestamp a cada segundo para exibição em tempo real
+   */
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTimestamp(Date.now());
@@ -47,6 +50,9 @@ const Services = () => {
     return () => clearInterval(interval);
   }, []);
 
+  /**
+   * Exibe mensagem de sucesso e limpa formulário após confirmação da transação
+   */
   useEffect(() => {
     if (isSuccess) {
       const total = calculateTotal();
@@ -62,6 +68,9 @@ const Services = () => {
     }
   }, [isSuccess, resetWrite]);
 
+  /**
+   * Trata erros de transação (cancelamento ou falha) e reseta estados
+   */
   useEffect(() => {
     if (writeError || receiptError) {
       const errorMessage = writeError?.message || receiptError?.message || 'Transação cancelada ou falhou';
@@ -85,10 +94,16 @@ const Services = () => {
     }
   }, [writeError, receiptError, resetWrite]);
 
+  /**
+   * Atualiza um campo específico dos dados de PET
+   */
   const handlePetChange = (field, value) => {
     setPetData(prev => ({ ...prev, [field]: value }));
   };
 
+  /**
+   * Valida se o endereço é um endereço Ethereum válido
+   */
   const isValidEthereumAddress = (address) => {
     if (!address) return false;
     const trimmed = address.trim();
@@ -97,18 +112,26 @@ const Services = () => {
     return /^[0-9a-fA-F]{40}$/.test(hexPart);
   };
 
+  /**
+   * Converte quantidade para kg (gramas -> kg)
+   */
   const convertToKg = (value, unit) => {
     if (!value) return 0;
     const numValue = parseFloat(value) || 0;
     return unit === 'g' ? numValue / 1000 : numValue;
   };
 
+  /**
+   * Converte kg para a unidade desejada (kg -> gramas)
+   */
   const convertFromKg = (kg, unit) => {
     if (!kg) return '';
     return unit === 'g' ? (kg * 1000).toString() : kg.toString();
   };
 
-
+  /**
+   * Alterna entre kg e gramas, mantendo o valor equivalente
+   */
   const handleUnitToggle = () => {
     const newUnit = petData.unidade === 'kg' ? 'g' : 'kg';
     const currentKg = convertToKg(petData.quantidade, petData.unidade);
@@ -116,6 +139,9 @@ const Services = () => {
     setPetData(prev => ({ ...prev, unidade: newUnit, quantidade: newValue }));
   };
 
+  /**
+   * Alterna entre reais e centavos, convertendo o valor
+   */
   const handleValorUnitToggle = () => {
     setPetData(prev => {
       const indoParaCentavos = prev.valorUnidade === 'reais';
@@ -130,12 +156,18 @@ const Services = () => {
     });
   };
 
+  /**
+   * Calcula o total de tokens glPET (quantidade em kg × valor em reais)
+   */
   const calculateTotal = () => {
     const kg = convertToKg(petData.quantidade, petData.unidade);
     if (kg <= 0 || petData.valorReais <= 0) return 0;
     return kg * petData.valorReais;
   };
 
+  /**
+   * Formata timestamp para exibição em português
+   */
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleString('pt-BR', {
@@ -147,6 +179,9 @@ const Services = () => {
     });
   };
 
+  /**
+   * Valida os dados e abre o dialog de confirmação
+   */
   const handleOpenDialog = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -210,6 +245,9 @@ const Services = () => {
     setIsDialogOpen(true);
   };
   
+  /**
+   * Processa o envio: faz upload no IPFS e executa o mint de tokens
+   */
   const handleFinalSubmit = async () => {
     if (!petData.quantidade || !petData.quantidade.trim()) {
       toast({
@@ -541,7 +579,7 @@ const Services = () => {
                 <div className="space-y-4">
                   {[
                     { title: 'Insira os Dados', desc: 'Digite a quantidade em kg ou gramas, valor em reais ou centavos e endereço do reciclador.' },
-                    { title: 'Calcule Seus Ganhos', desc: 'Veja quantos tokens glPET serão enviados (quantidade + valor).' },
+                    { title: 'Calcule Seus Ganhos', desc: 'Veja quantos tokens glPET serão enviados (quantidade × valor).' },
                     { title: 'Conecte sua Wallet', desc: 'Apenas o administrador pode enviar os valores.' },
                     { title: 'Receba Seus Tokens', desc: 'Após confirmação, os tokens glPET são enviados para o reciclador.' }
                   ].map((step, index) => (
