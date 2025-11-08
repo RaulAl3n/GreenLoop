@@ -24,6 +24,18 @@ The app connects environmental action with digital value, creating a circular ec
 
 ---
 
+🌐 Base Architecture — Supabase × Pinata × Edge Functions
+
+Our backend was designed to combine serverless infrastructure, decentralized storage, and secure execution.
+The integration of Supabase, Pinata (IPFS), and Edge Functions ensures persistence, auditability, and low cost — all without relying on traditional servers.
+
+ - Supabase — Web3-Ready Database and Authentication
+     - Supabase serves as the core database of the system, hosting all structured entities — such as profiles, transactions, and recycling records — in PostgreSQL with Row-Level Security (RLS). Additionally, we use:
+       1. Edge Functions para lógica crítica e integração on-chain (por exemplo, disparar eventos para contratos Solidity);
+       2. Service Role Key isolada dentro das funções, garantindo acesso seguro e controlado;
+       3. JWTs e Policies para autenticar wallets, sem expor chaves públicas no front-end.
+
+
 ## 🛡️ Why Chainlink Proof of Reserve?
 
 Green Loop leverages Chainlink’s **Proof of Reserve (PoR)** feeds to verify that wrapped Bitcoin tokens (such as **WBTC**) are fully collateralized.
@@ -38,6 +50,9 @@ Example feed used:
 AggregatorV3Interface(0xa81FE04086865e63E12dD3776978E49DEEa2ea4e); // WBTC Proof of Reserve
 ```
 
+
+
+
 ## How to run the project
 
 1. Copy and paste this code on the project directory:
@@ -50,4 +65,4 @@ npm i
 npm run dev
 ```
 
-3. ...
+3. 
