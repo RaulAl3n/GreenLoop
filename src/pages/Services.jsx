@@ -40,8 +40,8 @@ const Services = () => {
 
   const materials = [
     { id: 'plastic', name: 'Plástico', icon: Trash2, unit: 'kg', rate: 0.0015, color: 'from-blue-500 to-blue-600' },
-    { id: 'glass', name: 'Vidro', icon: Wine, unit: 'kg', rate: 0.001, color: 'from-green-500 to-green-600' },
-    { id: 'paper', name: 'Papel', icon: FileText, unit: 'kg', rate: 0.002, color: 'from-yellow-500 to-yellow-600' },
+    { id: 'glass', name: 'Vidro', icon: Wine, unit: 'kg', rate: 0.001, color: 'from-gray-500 to-gray-600' },
+    { id: 'paper', name: 'Papel', icon: FileText, unit: 'kg', rate: 0.002, color: 'from-gray-500 to-gray-600' },
     { id: 'metal', name: 'Metal', icon: Package, unit: 'kg', rate: 0.003, color: 'from-gray-500 to-gray-600' },
   ];
 
