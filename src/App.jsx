@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
@@ -8,8 +7,17 @@ import Home from '@/pages/Home';
 import About from '@/pages/About';
 import Services from '@/pages/Services';
 import Contact from '@/pages/Contact';
+import { sdk } from "@farcaster/miniapp-sdk";
 
-function App() {
+const App = () => {
+  useEffect(() => {
+    try {
+      sdks.actions.ready();
+    } catch (error) {
+      console.error('Erro ao inicializar o Farcaster:', error);
+    }
+  }, []);
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
@@ -27,6 +35,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;

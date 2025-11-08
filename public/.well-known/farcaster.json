@@ -1,0 +1,32 @@
+{
+  "miniapp": {
+    "accountAssociation": {
+        "header": "",
+        "payload": "",
+        "signature": ""
+      },
+      "baseBuilder": {
+        "ownerAddress": "0x"
+      },
+    "version": "1",
+    "name": "GreenLoop",
+    "homeUrl": "https://greenloop.vercel.app",
+    "iconUrl": "https://greenloop.vercel.app/og.png",
+    "splashImageUrl": "https://greenloop.vercel.app/og.png",
+    "splashBackgroundColor": "#000000",
+    "subtitle": "GreenLoop - Sustainable Solutions",
+    "description": "GreenLoop platform for sustainable solutions.",
+    "screenshotUrls": [
+      "https://greenloop.vercel.app/og.png"
+    ],
+    "primaryCategory": "finance",
+    "tags": ["greenloop", "sustainability", "web3"],
+    "heroImageUrl": "https://greenloop.vercel.app/og.png",
+    "tagline": "Sustainable solutions for the future",
+    "ogTitle": "GreenLoop",
+    "ogDescription": "GreenLoop - Sustainable Solutions Platform",
+    "ogImageUrl": "https://greenloop.vercel.app/og.png",
+    "noindex": true
+  }
+}
+
