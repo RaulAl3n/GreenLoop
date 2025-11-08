@@ -113,7 +113,7 @@ npm install
 ```
 
 ## 2. Environment Variables
-   Create ==.env.local==:
+   Create .env.local:
 ```
 NEXT_PUBLIC_PINATA_JWT=your_pinata_jwt_here
 NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
