@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import WalletConnectButton from '@/components/wallet/WalletConnectButton';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,7 +13,7 @@ const Header = () => {
   const navItems = [
     { name: 'Início', path: '/' },
     { name: 'Sobre nós', path: '/sobre' },
-    { name: 'Serviços', path: '/servicos' },
+    { name: 'Calcular', path: '/calcular' },
     { name: 'Contato', path: '/contato' },
   ];
 
@@ -57,6 +58,7 @@ const Header = () => {
                 )}
               </Link>
             ))}
+            <WalletConnectButton />
           </div>
 
           <Button
@@ -94,6 +96,9 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
+            <div className="mt-4 px-4">
+              <WalletConnectButton />
+            </div>
           </motion.div>
         )}
       </nav>

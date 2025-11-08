@@ -252,8 +252,10 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(__dirname, './src'),
 		},
+		conditions: ['import', 'module', 'browser', 'default'],
 	},
 	build: {
+		target: 'esnext',
 		rollupOptions: {
 			external: [
 				'@babel/parser',
@@ -262,5 +264,11 @@ export default defineConfig({
 				'@babel/types'
 			]
 		}
-	}
+	},
+	optimizeDeps: {
+		esbuildOptions: {
+			target: 'esnext',
+		},
+		exclude: ['@base-org/account'],
+	},
 });

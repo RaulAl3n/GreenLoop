@@ -1,0 +1,30 @@
+{
+    "accountAssociation": {
+      "header": "eyJmaWQiOjE0NTE0NDIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhkRTZjMTI4NzljM2EyZjUyNWNFZjI4ZTAxNkI4ZDhlZTM2RTExNTViIn0",
+      "payload": "eyJkb21haW4iOiJncmVlbmxvb3AtemV0YS52ZXJjZWwuYXBwIn0",
+      "signature": "8RMkRFSWQBc2VAAXYtsecu3lAe6/L8X6EWGRGxA47FB4wSh9Z1bUx1DrF//cIdrgYyMzROAqNyhydrvgymZd/Bs="
+    },
+    "miniapp": {
+      "version": "1",
+      "name": "GreenLoop",
+      "homeUrl": "https://greenloop-zeta.vercel.app",
+      "iconUrl": "https://greenloop-zeta.vercel.app/icon.svg",
+      "splashImageUrl": "https://greenloop-zeta.vercel.app/icon.svg",
+      "splashBackgroundColor": "#000000",
+      "subtitle": "GreenLoop - Sustainable Solutions",
+      "description": "GreenLoop platform for sustainable solutions.",
+      "screenshotUrls": ["https://greenloop-zeta.vercel.app/icon.svg"],
+      "primaryCategory": "finance",
+      "tags": ["greenloop", "sustainability", "web3"],
+      "heroImageUrl": "https://greenloop-zeta.vercel.app/icon.svg",
+      "tagline": "Sustainable solutions for the future",
+      "ogTitle": "GreenLoop",
+      "ogDescription": "GreenLoop - Sustainable Solutions Platform",
+      "ogImageUrl": "https://greenloop-zeta.vercel.app/icon.svg",
+      "noindex": true,
+      "baseBuilder": {
+        "ownerAddress": "0x8CC1e88F8Ee2e17245b5d247c1e47667d8C69F7A"
+      }
+    }
+  }
+  

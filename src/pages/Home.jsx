@@ -52,7 +52,7 @@ const Home = () => {
                 Transforme seus materiais recicláveis em recompensas digitais. Junte-se à revolução verde e sustentável com blockchain.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link to="/servicos">
+                <Link to="/calcular">
                   <Button size="lg" className="gradient-green text-white hover:opacity-90 transition-opacity">
                     Começar Agora
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -151,7 +151,7 @@ const Home = () => {
                   <div className="text-green-100">Usuários Ativos</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
-                  <div className="text-3xl font-bold mb-2">50 ton</div>
+                  <div className="text-3xl font-bold mb-2">50 Toneladas</div>
                   <div className="text-green-100">Recicladas</div>
                 </div>
               </div>
@@ -174,7 +174,7 @@ const Home = () => {
             <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
               Junte-se a milhares de pessoas que já estão transformando reciclagem em recompensas digitais.
             </p>
-            <Link to="/servicos">
+            <Link to="/calcular">
               <Button size="lg" className="gradient-green text-white hover:opacity-90 transition-opacity">
                 Calcular Meus Ganhos
                 <ArrowRight className="ml-2 w-5 h-5" />
