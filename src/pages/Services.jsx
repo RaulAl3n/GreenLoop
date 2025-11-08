@@ -25,8 +25,8 @@ const CONTRACT_ADDRESS = '0x35FbA5dE07ed5479c8a151b78013b8Fea0FE67B4';
 const Services = () => {
   const { toast } = useToast();
   const { address, isConnected } = useAccount();
-  const { writeContract, data: hash, isPending: isWriting } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+  const { writeContract, data: hash, isPending: isWriting, error: writeError, reset: resetWrite } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({
     hash,
   });
   const [petData, setPetData] = useState({
@@ -58,8 +58,32 @@ const Services = () => {
       setIsDialogOpen(false);
       setPetData({ quantidade: '', unidade: 'kg', valorReais: 0, valorUnidade: 'reais', recicladorAddress: '' });
       setLoading(false);
+      resetWrite();
     }
-  }, [isSuccess]);
+  }, [isSuccess, resetWrite]);
+
+  useEffect(() => {
+    if (writeError || receiptError) {
+      const errorMessage = writeError?.message || receiptError?.message || 'Transação cancelada ou falhou';
+      
+      if (errorMessage.includes('rejected') || errorMessage.includes('denied') || errorMessage.includes('User rejected') || errorMessage.includes('user rejected')) {
+        toast({
+          title: "Transação cancelada",
+          description: "A transação foi cancelada pelo usuário.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro na transação",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+      
+      setLoading(false);
+      resetWrite();
+    }
+  }, [writeError, receiptError, resetWrite]);
 
   const handlePetChange = (field, value) => {
     setPetData(prev => ({ ...prev, [field]: value }));
@@ -256,7 +280,12 @@ const Services = () => {
         description: "Enviando dados para o Pinata...",
       });
 
-      const cid = await uploadToPinata(submission);
+      const result = await uploadToPinata(submission);
+      const cid = result.cid || result.IpfsHash || result.ipfsHash;
+
+      if (!cid) {
+        throw new Error('Edge Function não retornou o CID');
+      }
 
       toast({
         title: "Upload concluído!",
