@@ -40,8 +40,8 @@ const Services = () => {
 
   const materials = [
     { id: 'plastic', name: 'Plástico', icon: Trash2, unit: 'kg', rate: 0.0015, color: 'from-blue-500 to-blue-600' },
-    { id: 'glass', name: 'Vidro', icon: Wine, unit: 'kg', rate: 0.001, color: 'from-green-500 to-green-600' },
-    { id: 'paper', name: 'Papel', icon: FileText, unit: 'kg', rate: 0.002, color: 'from-yellow-500 to-yellow-600' },
+    { id: 'glass', name: 'Vidro', icon: Wine, unit: 'kg', rate: 0.001, color: 'from-gray-500 to-gray-600' },
+    { id: 'paper', name: 'Papel', icon: FileText, unit: 'kg', rate: 0.002, color: 'from-gray-500 to-gray-600' },
     { id: 'metal', name: 'Metal', icon: Package, unit: 'kg', rate: 0.003, color: 'from-gray-500 to-gray-600' },
   ];
 
@@ -180,31 +180,48 @@ const Services = () => {
               </div>
 
               <form onSubmit={handleOpenDialog} className="space-y-6">
-                {materials.map((material) => (
-                  <div key={material.id} className="space-y-2">
-                    <Label htmlFor={material.id} className="flex items-center space-x-2 text-lg font-medium text-gray-700">
-                      <div className={`bg-gradient-to-r ${material.color} p-2 rounded-lg`}><material.icon className="w-5 h-5 text-white" /></div>
-                      <span>{material.name} ({material.unit})</span>
-                    </Label>
-                    <div className="relative">
-                      {/* ALTERAÇÕES AQUI: Adição de onFocus e onBlur, e ajuste do value */}
-                      <Input 
-                        id={material.id} 
-                        type="number" 
-                        min="0" 
-                        step="0.1" 
-                        value={quantities[material.id]} 
-                        onChange={(e) => handleQuantityChange(material.id, e.target.value)} 
-                        onFocus={() => handleFocus(material.id)} // Adiciona handler de foco
-                        onBlur={() => handleBlur(material.id)}   // Adiciona handler de desfoco
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors text-lg" 
-                        placeholder="0.0"
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">{material.unit}</span>
+                {materials.map((material) => {
+                  const isActive = material.id === 'plastic'; // ✅ agora permitido
+
+                  return (
+                    <div key={material.id} className="space-y-2">
+                      <Label htmlFor={material.id} className="flex items-center space-x-2 text-lg font-medium text-gray-700">
+                        <div className={`bg-gradient-to-r ${material.color} p-2 rounded-lg`}>
+                          <material.icon className="w-5 h-5 text-white" />
+                        </div>
+                        <span>{material.name} ({material.unit})</span>
+                      </Label>
+
+                      <div className="relative">
+                        {isActive ? (
+                          <>
+                            <Input
+                              id={material.id}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={quantities[material.id]}
+                              onChange={(e) => handleQuantityChange(material.id, e.target.value)}
+                              onFocus={() => handleFocus(material.id)}
+                              onBlur={() => handleBlur(material.id)}
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#538536] focus:outline-none transition-colors text-lg"
+                              placeholder="0.0"
+                            />
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
+                              {material.unit}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="w-full px-4 py-3 border-2 border-gray-100 rounded-lg bg-gray-100 text-gray-500 text-center text-lg select-none">
+                            EM BREVE...
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="text-sm text-gray-500">Taxa: {material.rate} BTC por {material.unit}</p>
                     </div>
-                    <p className="text-sm text-gray-500">Taxa: {material.rate} BTC por {material.unit}</p>
-                  </div>
-                ))}
+                  );
+                })}
 
                 <div className="pt-6 border-t-2 border-gray-200">
                   <div className="bg-gradient-to-r from-[#538536] to-[#6ba84a] p-6 rounded-xl text-white mb-6">
