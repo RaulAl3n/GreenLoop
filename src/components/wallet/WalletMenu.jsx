@@ -24,6 +24,9 @@ import {
 import { useDisconnect } from 'wagmi';
 import { toast } from 'sonner';
 
+/**
+ * Menu dropdown com opções da wallet conectada (copiar, ver no explorer, desconectar)
+ */
 const WalletMenu = ({ address, children }) => {
   const { disconnect } = useDisconnect();
 

@@ -626,7 +626,7 @@ const Services = () => {
                 <div className="space-y-4">
                   {[
                     { title: 'Insira os Dados', desc: 'Digite a quantidade em kg ou gramas, valor em reais ou centavos e endereço do reciclador.' },
-                    { title: 'Calcule Seus Ganhos', desc: 'Veja quantos tokens glPET serão enviados (quantidade + valor).' },
+                    { title: 'Calcule Seus Ganhos', desc: 'Veja quantos tokens glPET serão enviados (quantidade × valor).' },
                     { title: 'Conecte sua Wallet', desc: 'Apenas o administrador pode enviar os valores.' },
                     { title: 'Receba Seus Tokens', desc: 'Após confirmação, os tokens glPET são enviados para o reciclador.' }
                   ].map((step, index) => (

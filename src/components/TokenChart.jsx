@@ -1,6 +1,11 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
+/**
+ * Componente de gráfico mock para exibir estabilidade e valor do token glPET
+ * @param {boolean} compact - Se true, exibe versão compacta para cards de materiais
+ * @param {string} materialName - Nome do material para identificação única do gráfico
+ */
 const TokenChart = ({ compact = false, materialName = 'glPET' }) => {
   const dataPoints = [
     { day: 'Seg', value: 2.45, change: -0.12 },

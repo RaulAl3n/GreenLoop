@@ -29,6 +29,9 @@ import {
 } from '@/components/ui/dialog';
 import WalletConnectButton from './WalletConnectButton';
 
+/**
+ * Componente que protege rotas exigindo conexão de wallet antes de navegar
+ */
 const ProtectedLink = ({ to, children, className, size, variant, ...props }) => {
   const { isConnected } = useAccount();
   const navigate = useNavigate();
