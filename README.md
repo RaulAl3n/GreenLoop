@@ -45,7 +45,9 @@ AggregatorV3Interface(0xa81FE04086865e63E12dD3776978E49DEEa2ea4e); // WBTC Proof
 npm i
 ```
 
-3. Then paste this one:
+2. Then paste this one:
 ```
 npm run dev
 ```
+
+3. ...
